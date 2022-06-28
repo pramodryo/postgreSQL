@@ -1,0 +1,124 @@
+
+create table agents(
+	contact_id varchar primary key,
+	name varchar,
+	email_id varchar not null	
+);
+
+
+insert into agents (contact_id,name,email_id) values 
+('A001', 'madhav rathod', 'pdhhgv@gmail.com'),
+('A002', 'santosh sharma', 'gjfs@gmail.com'),
+('A003', 'kumar rathod', 'mdhhgv@gmail.com'),
+('A004', 'rahul sharma', 'gjsdsffs@gmail.com'),
+('A005', 'kiran jadhav', 'pdfdhhgv@gmail.com'),
+('A006', 'satyam bijol', 'gjdsfs@gmail.com'),
+('A007', 'muskan khan','pderhhgv@gmail.com'),
+('A008', 'rahul sharma','gj887fs@gmail.com'
+);
+
+
+select * from agents;
+
+
+create sequence bankNo
+increment 1
+start 20220001;
+
+
+create table customer(
+	bank_no int primary key,
+	contact_id varchar,
+	customer_name varchar(255) not null,
+	phone varchar(15),
+	CONSTRAINT fk_agent
+      FOREIGN KEY(contact_id) 
+	  REFERENCES agents(contact_id)
+);
+
+
+select*from customer;
+
+
+insert into customer(bank_no,contact_id,customer_name,phone) values (nextval('bankNo'),'A002','pooja panchal','9922657488'),
+(nextval('bankNo'),'A001','rahul tripathi','8822657488'),
+(nextval('bankNo'),'A005','kumari bharti','9825657488'),
+(nextval('bankNo'),'A003','gaju varma','9822657484'),
+(nextval('bankNo'),'A004','patil kusum','9822655488'),
+(nextval('bankNo'),'A008','rohit sharma','9822757488'),
+(nextval('bankNo'),'A006','shanti devi','9822557488'),
+(nextval('bankNo'),'A005','kishori anjju','9822607488'),
+(nextval('bankNo'),'A003','roman pali','9722657488'),
+(nextval('bankNo'),'A002','santoshi sharma','9822658488'),
+(nextval('bankNo'),'A007','santosh sharma','9822607688'),
+(nextval('bankNo'),'A005','santosh jadhav','9822657778');
+
+
+
+select count(customer_name) From customer where contact_id = 'A005';
+
+
+CREATE FUNCTION agents_customer()
+RETURNS int AS $totalcustomer$
+declare
+	totalcustomer int;
+BEGIN
+	select count(customer_name) From customer where contact_id = 'A005';
+	return totalcustomer;
+END;
+$totalcustomer$ LANGUAGE plpgsql;
+
+
+
+
+select agents_customer();
+select * from customer;
+
+
+
+create table Transaction(
+	bank_no int primary key,
+	bank_balance int,
+	date_0f_transaction varchar(255) not null,
+	CONSTRAINT FK_transfer
+      FOREIGN KEY(bank_no) 
+	  REFERENCES customer(bank_no));
+
+insert into Transaction (bank_no,bank_balance, date_0f_transaction) values ('20220014','15000','05/04/2022'),
+('20220015','8000','05/01/2022'),
+('20220016','17000','20/10/2022'),
+('20220017','5000','05/11/2022'),
+('20220018','25000','10/04/2022'),
+('20220019','3000','10/05/2022'),
+('20220020','30000','20/06/2022'),
+('20220021','10000','30/02/2022'),
+('20220022','75000','15/03/2022'),
+('20220023','32000','16/09/2022'),
+('20220024','19000','24/09/2022'),
+('20220025','22000','20/08/2022');
+
+
+
+ select * from transaction;
+
+
+create procedure transfer (
+	sender int,
+	reciever int,
+	amount float
+)
+language plpgsql
+as $$
+begin
+	
+	update transaction set bank_balance = bank_balance - amount where bank_no = sender;
+	update transaction set bank_balance = bank_balance + amount where bank_no = reciever;
+	-- return X
+	commit;
+end;$$
+
+
+ call transfer (20220014,20220017,5000);
+ call transfer (20220020,20220019,10000);
+ select * from transaction;
+
